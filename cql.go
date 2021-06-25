@@ -51,7 +51,7 @@ func (gc *GoCrank) Set(key string, value interface{}) (*cql.SetCommandResponse, 
 		dataPacket.DataType = valType
 		dataPacket.S32IntVal = value
 	case int64:
-		valType = cql.DataType_INT
+		valType = cql.DataType_LONG
 		dataPacket.DataType = valType
 		dataPacket.S64IntVal = value
 	case float32:
@@ -59,7 +59,7 @@ func (gc *GoCrank) Set(key string, value interface{}) (*cql.SetCommandResponse, 
 		dataPacket.DataType = valType
 		dataPacket.FloatVal = value
 	case float64:
-		valType = cql.DataType_LONG
+		valType = cql.DataType_DOUBLE
 		dataPacket.DataType = valType
 		dataPacket.DoubleVal = value
 	case bool:
@@ -70,14 +70,16 @@ func (gc *GoCrank) Set(key string, value interface{}) (*cql.SetCommandResponse, 
 		valType = cql.DataType_BYTES
 		dataPacket.DataType = valType
 		dataPacket.BytesVal = value
-	case map[string]interface{}:
+	default:
+		jsonVal, err := json.Marshal(value)
+		if err != nil || string(jsonVal) == "null" {
+			errorMsg := fmt.Sprintf("unsupported type value - %T", value)
+			return nil, errors.New(errorMsg)
+		}
+
 		valType = cql.DataType_JSON
 		dataPacket.DataType = valType
-		jsonVal, _ := json.Marshal(value)
 		dataPacket.JsonVal = jsonVal
-	default:
-		errorMsg := fmt.Sprintf("unsupported type value - %T", value)
-		return nil, errors.New(errorMsg)
 	}
 
 	response, err := gc._client.Set(context.Background(), &dataPacket)
