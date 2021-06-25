@@ -8,8 +8,8 @@ import (
 	"io"
 	"log"
 
-	cql "github.com/shreybatra/crankdb/cql"
-	client "github.com/shreybatra/crankdb/server"
+	cql "github.com/shreybatra/gocrank/cql"
+	client "github.com/shreybatra/gocrank/server"
 	"google.golang.org/grpc"
 )
 
